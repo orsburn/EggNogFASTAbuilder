@@ -1,0 +1,31 @@
+# Import the SeqIO module from Biopython
+from Bio import SeqIO
+
+# Define the file names and paths
+input_file = "input.fasta"  # Change this to the name of your input FASTA file
+swap_file = "accession_swaps.txt"  # Change this to the name of your accession swap file
+output_file = "output.fasta"  # Change this to the name of your output FASTA file
+
+# Load the accession swaps into a dictionary
+swaps = {}
+with open(swap_file, 'r') as f:
+    # Skip the header row
+    next(f)
+    # Loop over the lines in the file
+    for line in f:
+        # Split the line into two columns
+        old_acc, new_acc = line.strip().split('\t')
+        # Add the old and new accessions to the dictionary
+        swaps[old_acc] = new_acc
+
+# Open the input and output files
+with open(input_file, 'r') as input, open(output_file, 'w') as output:
+    # Loop over the records in the input file
+    for record in SeqIO.parse(input, 'fasta'):
+        # Check if the accession is in the swaps dictionary
+        if record.id in swaps:
+            # If so, replace the old accession with the new accession
+            record.id = swaps[record.id]
+            record.description = ''
+        # Write the modified record to the output file
+        SeqIO.write(record, output, 'fasta')
